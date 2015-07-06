@@ -7,7 +7,13 @@ class DataDownloader
 	 */
 	public static function GetSymbolListing($exchange)
 	{
-
+		if ($exchange == "NASDAQ" ||
+			$exchange == "NYSE" ||
+			$exchange == "AMEX")
+		{
+			$csv = self::DownloadFromNasdaq($exchange);
+			
+		}
 	}
 
 	/**
@@ -17,6 +23,7 @@ class DataDownloader
 	private static function DownloadFromNasdaq($exchange)
 	{
 		$url = "http://www.nasdaq.com/screening/companies-by-name.aspx?letter=0&exchange=$exchange&render=download";
-
+		$csv = file_get_contents($url);
+		return $csv;
 	}
 }
