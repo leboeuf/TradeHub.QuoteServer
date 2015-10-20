@@ -14,10 +14,14 @@
 	// dump = returns a ZIP file containing all of the historical data for every stock in the database
 	if (Utils::IsGetVariableNotEmpty('e'))
 	{
+		// Exchange
+		$e = $_GET['e'];
+
 		if (Utils::IsGetVariableNotEmpty('t'))
 		{
 			// Parse time frame
-			
+			$t = $_GET['t'];
+
 		}
 
 		// Get all stocks data for this exchange (if t is not set, only fetch active stocks)
@@ -27,17 +31,18 @@
 		if (Utils::IsGetVariableNotEmpty('f'))
 		{
 			// Format output
-			
+			$f = $_GET['f'];
 		}
 	}
 	else if (Utils::IsGetVariableNotEmpty('s'))
 	{
 		// Split
+		$s = $_GET['s'];
 
 		if (Utils::IsGetVariableNotEmpty('t'))
 		{
 			// Parse time frame
-
+			$t = $_GET['t'];
 		}
 
 		// Select data
@@ -47,7 +52,7 @@
 		if (Utils::IsGetVariableNotEmpty('f'))
 		{
 			// Format output
-			
+			$f = $_GET['f'];
 		}
 
 	}
