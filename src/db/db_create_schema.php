@@ -13,7 +13,7 @@
 			symbol TEXT PRIMARY KEY,
 			exchange TEXT NOT NULL,
 			name TEXT NOT NULL)";
-		$db->exec($sql);
+		$db->exec($sql); // todo: add index on symbol and exchange
 
 		$sql = "CREATE TABLE IF NOT EXISTS historical (
 			symbol TEXT PRIMARY KEY,
@@ -25,7 +25,7 @@
 			close DECIMAL(10,4) NOT NULL,
 			volume INT NOT NULL,
 			adjusted_close DECIMAL(10,4) NOT NULL)";
-		$db->exec($sql);
+		$db->exec($sql); // todo: add index on symbol, exchange and quote_date
 	}
 	catch(PDOException $e)
 	{

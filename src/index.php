@@ -8,7 +8,7 @@
 	// Possible GET parameters:
 	// e = exchange
 	// s = symbols (comma-separated)
-	// t = date or number of days in the past
+	// t = date or date range or number of days in the past
 	// f = format (JSON or ZIP)
 	// stats = returns database statistics in JSON format
 	// dump = returns a ZIP file containing all of the historical data for every stock in the database
@@ -25,6 +25,11 @@
 		}
 
 		// Get all stocks data for this exchange (if t is not set, only fetch active stocks)
+		// 'SELECT h.*, s.name FROM historical h 
+		// 		INNER JOIN symbols s ON (h.symbol = s.symbol AND h.exchange = s.exchange) 
+		//		WHERE exchange = ?'
+		// 'AND quote_date = ?' // t or date('Y-m-d');
+		// 'AND quote_date BETWEEN ? AND ?'
 
 		// Format it
 
