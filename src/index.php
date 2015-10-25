@@ -44,13 +44,12 @@
 		// Split
 		$s = $_GET['s'];
 
-		if (Utils::IsGetVariableNotEmpty('t'))
-		{
-			// Parse time frame
-			$t = $_GET['t'];
-		}
-
 		// Select data
+		$sql = Utils::GetBaseSQL();
+		$sql .= ' WHERE h.symbol in (?)';
+		$sql = HandleTimeframe($sql);
+		$sql .= ' ORDER BY h.symbol, h.quote_date desc';
+		//print_r($sql);
 
 		// Format it
 
@@ -81,3 +80,37 @@
 		// Format it
 		
 	}
+
+function HandleTimeframe($sql)
+{
+	if (!Utils::IsGetVariableNotEmpty('t'))
+	{
+		return $sql;
+	}
+
+	// Parse time frame
+	$t = $_GET['t'];
+
+	if (is_numeric($t))
+	{
+		// t is number of days in the past (days of data, exclude days when market is closed, 1 = last day of data available)
+		// SELECT top t
+		$sql = str_replace('SELECT', "SELECT TOP $t", $sql);
+		return $sql;
+	}
+	
+	if (Utils::IsDateValid($t))
+	{
+		// t is single date
+		// quote_date = ?
+		$sql = Utils::WhereOrAnd($sql, 'quote_date = ?');
+	}
+
+	// t is date range 'quote_date between ? and ?'
+	
+	// otherwise: t is invalid
+
+	// if sql contains 'WHERE' add 'AND' else add 'WHERE'
+
+	return $sql;
+}
