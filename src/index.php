@@ -1,4 +1,14 @@
 <?php
+
+	// DEBUG
+	// require_once('db/db.php');
+	// require_once('DataDownloader.php');
+	// require_once('QueryBuilder.php');
+	// require_once('jobs/SymbolListingDownloadJob.php');
+	// $s = new SymbolListingDownloadJob();
+	// $s->run();
+	// exit;
+
 	require_once('db/db.php');
 	require_once('Utils.php');
 	require_once('QueryBuilder.php');

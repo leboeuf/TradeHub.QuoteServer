@@ -12,7 +12,26 @@ class DataDownloader
 			$exchange == "AMEX")
 		{
 			$csv = self::DownloadFromNasdaq($exchange);
+			$lines = explode(PHP_EOL, $csv);
+
+			$result = [];
+			foreach ($lines as $line)
+			{
+				$f = str_getcsv($line);
+
+				if (count($f) < 2)
+				{
+					continue;
+				}
+
+				$data = [];
+				$data['symbol'] = $f[0];
+				$data['name'] = $f[1];
+				$result[] = $data;
+			}
 			
+			array_shift($result); // Remove header row
+			return $result;
 		}
 	}
 
