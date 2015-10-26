@@ -15,7 +15,7 @@ class Utils
 	 */
 	public static function GetBaseSQL()
 	{
-		return 'SELECT h.*, s.name FROM historical h INNER JOIN symbols s ON (h.symbol = s.symbol AND h.exchange = s.exchange';
+		return 'SELECT h.*, s.name FROM historical h INNER JOIN symbols s ON (h.symbol = s.symbol AND h.exchange = s.exchange)';
 	}
 
 	/**

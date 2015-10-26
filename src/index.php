@@ -1,6 +1,7 @@
 <?php
 	require_once('db/db.php');
 	require_once('Utils.php');
+	require_once('QueryBuilder.php');
 
 	// Check if the database structure exists, create it otherwise
 	require_once('db/db_create_schema.php');
@@ -17,52 +18,42 @@
 		// Exchange
 		$e = $_GET['e'];
 
-		if (Utils::IsGetVariableNotEmpty('t'))
-		{
-			// Parse time frame
-			$t = $_GET['t'];
-
-		}
-
-		// Get all stocks data for this exchange (if t is not set, only fetch active stocks)
-		// 'SELECT h.*, s.name FROM historical h 
-		// 		INNER JOIN symbols s ON (h.symbol = s.symbol AND h.exchange = s.exchange) 
-		//		WHERE exchange = ?'
-		// 'AND quote_date = ?' // t or date('Y-m-d');
-		// 'AND quote_date BETWEEN ? AND ?'
+		// Select data
+		$query = new QueryBuilder();
+		$query->sql = Utils::GetBaseSQL();
+		$query->sql .= ' WHERE h.exchange = ?';
+		$query->parameters[] = $e;
+		$query->execute();
 
 		// Format it
-
-		if (Utils::IsGetVariableNotEmpty('f'))
-		{
-			// Format output
-			$f = $_GET['f'];
-		}
+		HandleFormat();
 	}
 	else if (Utils::IsGetVariableNotEmpty('s'))
 	{
-		// Split
+		// Symbol(s)
 		$s = $_GET['s'];
 
 		// Select data
-		$sql = Utils::GetBaseSQL();
-		$sql .= ' WHERE h.symbol in (?)';
-		$sql = HandleTimeframe($sql);
-		$sql .= ' ORDER BY h.symbol, h.quote_date desc';
-		//print_r($sql);
+		$query = new QueryBuilder();
+		$query->sql = Utils::GetBaseSQL();
+		$query->sql .= ' WHERE h.symbol in (?)';
+		$query->parameters[] = $s;
+
+		// Timeframe
+		HandleTimeframe($query);
+		$query->sql .= ' ORDER BY h.symbol, h.quote_date desc';
+
+		$query->execute();
 
 		// Format it
-
-		if (Utils::IsGetVariableNotEmpty('f'))
-		{
-			// Format output
-			$f = $_GET['f'];
-		}
-
+		HandleFormat();
 	}
 	else if (Utils::IsGetVariableNotEmpty('dump'))
 	{
 		// Get all stock info
+		$query = new QueryBuilder();
+		$query->sql = Utils::GetBaseSQL();
+		// run 2 queries, 1 per table and return an arrays
 
 		// Format it
 
@@ -81,11 +72,11 @@
 		
 	}
 
-function HandleTimeframe($sql)
+function HandleTimeframe(QueryBuilder $query)
 {
 	if (!Utils::IsGetVariableNotEmpty('t'))
 	{
-		return $sql;
+		return;
 	}
 
 	// Parse time frame
@@ -94,23 +85,55 @@ function HandleTimeframe($sql)
 	if (is_numeric($t))
 	{
 		// t is number of days in the past (days of data, exclude days when market is closed, 1 = last day of data available)
-		// SELECT top t
-		$sql = str_replace('SELECT', "SELECT TOP $t", $sql);
-		return $sql;
+		$query->sql = str_replace('SELECT', "SELECT TOP $t", $query->sql);
+		return;
 	}
 	
 	if (Utils::IsDateValid($t))
 	{
 		// t is single date
-		// quote_date = ?
-		$sql = Utils::WhereOrAnd($sql, 'quote_date = ?');
+		$query->sql = Utils::WhereOrAnd($query->sql, 'quote_date = ?');
+		$query->parameters[] = $t;
+		return;
 	}
 
-	// t is date range 'quote_date between ? and ?'
+	if (strpos($t, ',') !== false)
+	{
+		$t = explode(',', $t);
+		if (count($t) != 2 || !Utils::IsDateValid($t[0]) || !Utils::IsDateValid($t[1]))
+		{
+			// t has invalid components
+			return;
+		}
+
+		// t is comma-separated date range
+		$query->sql = Utils::WhereOrAnd($query->sql, 'quote_date between ? and ?');
+		$query->parameters[] = $t[0];
+		$query->parameters[] = $t[1];
+		return;
+	}
 	
-	// otherwise: t is invalid
+	// t is invalid
+	return;
+}
 
-	// if sql contains 'WHERE' add 'AND' else add 'WHERE'
+function HandleFormat()
+{
+	if (!Utils::IsGetVariableNotEmpty('f'))
+	{
+		return;
+	}
 
-	return $sql;
+	// Format output
+	$f = strtolower($_GET['f']);
+	if ($f == 'json')
+	{
+
+	}
+	else if ($f == 'zip')
+	{
+
+	}
+
+	// invalid format
 }
